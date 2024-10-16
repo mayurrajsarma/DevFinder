@@ -15,8 +15,24 @@ app.post("/signup",async (req,res)=> {
    //    gender: "Male"
    // }
    
-   const user = new User(req.body) ;//creating a new instance of the user model
    try {
+      //validation of data
+      validateSignUpData(req) ;
+      const {firstName,lastName,emailId,password,about,skills,age,gender,photoUrl} = req.body ;
+      //encrypt the password
+      const passwordHash = await bcrypt.hash(password,10)
+      const user = new User({
+         firstName,
+         lastName,
+         emailId,
+         password: passwordHash,
+         about,
+         skills,
+         age,
+         gender,
+         photoUrl
+      }) ;//creating a new instance of the user model
+      
       await user.save();//data will be saved onto db , it return a promise
       res.send("User added successfully!");
    } catch (error) {
