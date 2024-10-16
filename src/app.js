@@ -61,7 +61,19 @@ app.use("/feed",async (req,res)=> {
 app.patch("/user",async (req,res)=> {
    const userId = req.body.id ;
    const data = req.body ;
-   try {
+   try{
+      const ALLOWED_UPDATES = [
+         "about",
+         "skills"
+      ]
+
+      const isUPDATE_ALLOWED = Object.keys(data).every((k)=>ALLOWED_UPDATES.includes(k)) ;
+      if(!isUPDATE_ALLOWED) {
+         throw new Error("UPDATE NOT ALLOWED")
+      }
+      if(data?.skills.length>10) {
+         throw new Error("Skills can't be more than 10") ;
+      }
       await User.findByIdAndUpdate({_id:userId},data, {
          runValidators:true,
       }) ;
