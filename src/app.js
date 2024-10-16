@@ -6,6 +6,7 @@ const bcrypt = require("bcrypt") ;
 const app = express();
 
 app.use(express.json()) ;//middleware json to JS object converter
+
 app.post("/signup",async (req,res)=> {
    // console.log(req.body) ;
    // const userObj = {
@@ -61,7 +62,7 @@ app.post("/login", async (req,res)=> {
    } catch (error) {
       res.status(400).send("ERROR: " + error.message) ;
    }
-});
+})
 
 app.get("/user", async (req,res)=> {
    const userEmail = req.body.emailId;
@@ -97,8 +98,8 @@ app.use("/feed",async (req,res)=> {
 })
 
 //update data of the user
-app.patch("/user",async (req,res)=> {
-   const userId = req.body.id ;
+app.patch("/user/:Id",async (req,res)=> {
+   const userId = req.params?.Id ;
    const data = req.body ;
    try{
       const ALLOWED_UPDATES = [
@@ -117,8 +118,9 @@ app.patch("/user",async (req,res)=> {
          runValidators:true,
       }) ;
       res.send("User updated successfully") ;
-   } catch (err) {
-      res.status(400).send("Something went wrong");
+   }
+   catch (err) {
+      res.status(400).send("Something went wrong: " + err.message);
    }
 })
 
