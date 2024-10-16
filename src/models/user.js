@@ -1,4 +1,5 @@
 const mongoose = require('mongoose') ;
+const validator = require('validator') ;
 const userSchema = new mongoose.Schema({
         firstName: {
             type: String,
@@ -14,12 +15,30 @@ const userSchema = new mongoose.Schema({
             required: true,
             unique: true,
             lowercase: true,
-            trim: true
+            trim: true,
+            validate(email){
+                if(!validator.isEmail(email)) {
+                    throw new Error("Invalid Email address: " + email) ;
+                }
+            }
         },
         password: {
             type: String,
             required: true,
-            minLength: 6
+            minLength: 8,
+            validate(value) {
+                if(!validator.isStrongPassword(value)) {
+                    throw new Error("Password must contain atleast one uppercase,lowercase,number and symbol") ;
+                }
+                // { minLength: 8, minLowercase: 1, minUppercase: 1, minNumbers: 1, minSymbols: 1, returnScore: false, pointsPerUnique: 1, pointsPerRepeat: 0.5, pointsForContainingLower: 10, pointsForContainingUpper: 10, pointsForContainingNumber: 10, pointsForContainingSymbol: 10 }
+            }
+        },
+        about:{
+            type: String,
+            maxLength:150
+        },
+        skills: {
+            type: [String]
         },
         age: {
             type: Number,
@@ -28,11 +47,20 @@ const userSchema = new mongoose.Schema({
         gender: {
             type: String,
             validate(value) {
-                if(!["male","female","others"].includes(value)) {
+                if(!["Male","Female","others"].includes(value)) {
                     throw new Error("Invalid Gender") ;
                 }
             }
         },
+        photoUrl: {
+            type:String,
+            default: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQJxKGGpPc9-5g25KWwnsCCy9O_dlS4HWo5A&s",
+            validate(value) {
+                if(!validator.isURL(value)) {
+                    throw new Error("Invalid photo URL") ;
+                }
+            }
+        }
     },
     {
         timestamps: true
