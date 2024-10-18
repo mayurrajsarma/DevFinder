@@ -3,10 +3,14 @@ const connectDB = require("./config/database");
 const User = require("./models/user");
 const {validateSignUpData} = require("./utils/validation") ;
 const bcrypt = require("bcrypt") ;
+const cookieParser = require("cookie-parser") ;
+require("dotenv").config();
+const jwt = require("jsonwebtoken") ;
+
 const app = express();
 
 app.use(express.json()) ;//middleware json to JS object converter
-
+app.use(cookieParser()) ;   
 app.post("/signup",async (req,res)=> {
    // console.log(req.body) ;
    // const userObj = {
@@ -54,6 +58,12 @@ app.post("/login", async (req,res)=> {
       }
       const isPasswordValid = await bcrypt.compare(password,user.password) ;
       if(isPasswordValid) {
+         //create a JWT token
+         const token = await jwt.sign({_id:user._id},process.env.SECRET_KEY) ;
+
+         //Add the token to cookie and send the response back to the user
+         res.cookie("token",token) ;
+
          res.send("Login Successfull !")
       }
       else {
@@ -61,6 +71,33 @@ app.post("/login", async (req,res)=> {
       }
    } catch (error) {
       res.status(400).send("ERROR: " + error.message) ;
+   }
+})
+
+//profile
+app.get("/profile",async (req,res)=> {
+   try {
+      const myCookie = req.cookies ;
+      const {token} = myCookie ;
+      if(!token) {
+         throw new Error("Invalid Token") ;   
+      }
+
+      //validate the cookie 
+      const decodedMessage = await jwt.verify(token,process.env.SECRET_KEY); //it returns a decoded value not boolean
+      const { _id } = decodedMessage ;
+      
+      // console.log("Logged in User is: " + _id) ;
+      const user = await User.findById(_id) ;
+      
+      //token is valid but user doesnt exist in our db
+      if(!user) {
+         throw new Error("User does not exist") 
+      }
+      
+      res.send(user) ;
+   } catch (err) {
+      res.status(400).send("ERROR: " + err.message) ;
    }
 })
 
