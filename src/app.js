@@ -5,12 +5,15 @@ const {validateSignUpData} = require("./utils/validation") ;
 const bcrypt = require("bcrypt") ;
 const cookieParser = require("cookie-parser") ;
 require("dotenv").config();
+const {userAuth} = require("./middlewares/auth") ;
 const jwt = require("jsonwebtoken") ;
 
 const app = express();
 
 app.use(express.json()) ;//middleware json to JS object converter
-app.use(cookieParser()) ;   
+app.use(cookieParser()) ;  
+
+
 app.post("/signup",async (req,res)=> {
    // console.log(req.body) ;
    // const userObj = {
@@ -59,10 +62,12 @@ app.post("/login", async (req,res)=> {
       const isPasswordValid = await bcrypt.compare(password,user.password) ;
       if(isPasswordValid) {
          //create a JWT token
-         const token = await jwt.sign({_id:user._id},process.env.SECRET_KEY) ;
+         const token = await jwt.sign({_id:user._id},process.env.SECRET_KEY,{expiresIn: '8h'}) ;
 
          //Add the token to cookie and send the response back to the user
-         res.cookie("token",token) ;
+         res.cookie("token",token,{
+            expires: new Date(Date.now() + 8 * 3600000),
+         }) ;
 
          res.send("Login Successfull !")
       }
@@ -75,31 +80,17 @@ app.post("/login", async (req,res)=> {
 })
 
 //profile
-app.get("/profile",async (req,res)=> {
+app.get("/profile",userAuth,async (req,res)=> {
    try {
-      const myCookie = req.cookies ;
-      const {token} = myCookie ;
-      if(!token) {
-         throw new Error("Invalid Token") ;   
-      }
-
-      //validate the cookie 
-      const decodedMessage = await jwt.verify(token,process.env.SECRET_KEY); //it returns a decoded value not boolean
-      const { _id } = decodedMessage ;
-      
-      // console.log("Logged in User is: " + _id) ;
-      const user = await User.findById(_id) ;
-      
-      //token is valid but user doesnt exist in our db
-      if(!user) {
-         throw new Error("User does not exist") 
-      }
-      
+      const user = req.user ;
       res.send(user) ;
    } catch (err) {
       res.status(400).send("ERROR: " + err.message) ;
    }
-})
+});
+
+//sending a connection req
+
 
 app.get("/user", async (req,res)=> {
    const userEmail = req.body.emailId;
