@@ -1,5 +1,6 @@
 const mongoose = require('mongoose') ;
 const validator = require('validator') ;
+
 const userSchema = new mongoose.Schema({
         firstName: {
             type: String,
@@ -67,7 +68,12 @@ const userSchema = new mongoose.Schema({
     },
 );
 
-
+//user schema method
+userSchema.methods.getJWT = async function() {
+    const user = this ;
+    const token = await jwt.sign({_id:user._id},process.env.SECRET_KEY,{expiresIn: '8h'}) ;
+    return token ;
+};
 
 //mongoose.model(modelName, schema)
 const UserModel = mongoose.model("User",userSchema) ;
