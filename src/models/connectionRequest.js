@@ -22,6 +22,9 @@ const connectionRequestSchema = new mongoose.Schema({
     }
 )
 
+//compound indexing
+connectionRequestSchema.index({toUserId:1,fromUserId:1}) ;
+
 //will be called every time we save a new connection request 
 //will be called before saving it to the DB
 // pre is like a middleware we have to call next ;
