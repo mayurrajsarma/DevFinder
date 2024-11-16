@@ -30,7 +30,8 @@ connectionRequestSchema.pre("save",function(next){
     //connection request to self , validation
     //check if fromUserId and toUserId is same
     if(connectionRequest.fromUserId.equals(connectionRequest.toUserId)) {
-        throw new error("Cannot send connection request to self!");
+        throw new Error("Cannot send connection request to self!");
+        
     }
     next() ;
 });
