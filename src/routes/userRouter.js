@@ -4,6 +4,7 @@ const ConnectionRequest = require("../models/connectionRequest");
 
 const userRouter = express.Router() ;
 
+//shows all the pending requets
 userRouter.get("/user/request/received",userAuth,async (req,res)=> {
     try {
         const loginUser = req.user ;
@@ -21,6 +22,7 @@ userRouter.get("/user/request/received",userAuth,async (req,res)=> {
     }
 })
 
+//shows all the connections of the user 
 userRouter.get("/user/connection",userAuth,async (req,res)=> {
     try {
         const loginUser = req.user ;
