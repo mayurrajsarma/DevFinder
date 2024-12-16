@@ -7,9 +7,11 @@ const authRouter = require("./routes/authRouter");
 const profileRouter = require("./routes/profileRouter");
 const requestRouter = require("./routes/requestRouter") ;
 const userRouter = require('./routes/userRouter');
+const cors = require("cors") ;
 
 const app = express();
 
+app.use(cors()) ;
 app.use(express.json()) ;//middleware json to JS object converter
 app.use(cookieParser()) ;  
 
