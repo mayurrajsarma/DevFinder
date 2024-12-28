@@ -45,15 +45,24 @@ const userSchema = new mongoose.Schema({
         },
         age: {
             type: Number,
-            min: 18 
+            min: 18,
+            validate(value) {
+                if(isNaN(value)) {
+                    throw new Error("Age is just a number!")
+                }
+            }
         },
         gender: {
             type: String,
-            validate(value) {
-                if(!["Male","Female","others"].includes(value)) {
-                    throw new Error("Invalid Gender") ;
-                }
-            }
+            enum: {
+                values: ["Male","Female","others"],
+                message: `{VALUE} is not a valid gender type`
+            },
+            // validate(value) {
+            //     if(!["Male","Female","others"].includes(value)) {
+            //         throw new Error("Invalid Gender") ;
+            //     }
+            // }
         },
         photoUrl: {
             type:String,
