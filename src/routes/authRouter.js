@@ -17,31 +17,40 @@ authRouter.post("/signup",async (req,res)=> {
     //    gender: "Male"
     // }
     
-    try {
+   try {
        //validation of data
-       validateSignUpData(req) ;
+      validateSignUpData(req) ;
        
-       const {firstName,lastName,emailId,password,about,skills,age,gender,photoUrl} = req.body ;
+      const {firstName,lastName,emailId,password,about,skills,age,gender,photoUrl} = req.body ;
        
        //encrypt the password
-       const passwordHash = await bcrypt.hash(password,10)
-       const user = new User({
-          firstName,
-          lastName,
-          emailId,
-          password: passwordHash,
-          about,
-          skills,
-          age,
-          gender,
-          photoUrl
-       }) ;//creating a new instance of the user model
+      const passwordHash = await bcrypt.hash(password,10)
+      const user = new User({
+         firstName,
+         lastName,
+         emailId,
+         password: passwordHash,
+         about,
+         skills,
+         age,
+         gender,
+         photoUrl
+      }) ;//creating a new instance of the user model
        
-       await user.save();//data will be saved onto db , it return a promise
-       res.send("User added successfully!");
-    } catch (error) {
-       res.status(400).send("ERROR: " + error.message) ;
-    }
+      const savedUser = await user.save();//data will be saved onto db , it return a promise
+      
+      const token = await savedUser.getJWT() ;
+      //Add the token to cookie and send the response back to the user
+      res.cookie("token",token,{
+         expires: new Date(Date.now() + 8 * 3600000),
+      }) ;
+      
+      res.json({message:"User added successfully!",
+      data: savedUser
+      });
+   }catch (error) {
+      res.status(400).send("ERROR: " + error.message) ;
+   }
 });
 
 //login

@@ -12,7 +12,7 @@ userRouter.get("/user/request/received",userAuth,async (req,res)=> {
         const connectionRequest = await ConnectionRequest.find({
             toUserId: loginUser._id,
             status: "interested"
-        }).populate("fromUserId","firstName lastName") ;
+        }).populate("fromUserId",USER_SAFE_DATA) ;
         
         res.json({
             message: "Data fetched successfully",
@@ -33,8 +33,8 @@ userRouter.get("/user/connection",userAuth,async (req,res)=> {
                 {toUserId:loginUser._id,status:"accept"},
             ]
         })
-        .populate("fromUserId", "firstName lastName")
-        .populate("toUserId", "firstName lastName")
+        .populate("fromUserId", USER_SAFE_DATA)
+        .populate("toUserId", USER_SAFE_DATA)
 
         const data = connections.map(rows=> {
             //or we can use: rows.fromUserId._id.toString()===loginUser._id.toString()
@@ -62,9 +62,12 @@ userRouter.get("/user/feed",userAuth,async (req,res)=> {
         const skip = (page - 1) * limit ;
 
         const connectionRequests = await ConnectionRequest.find({
+            // $or: [
+            //     {fromUserId:loginUser._id},
+            //     {toUserId:loginUser._id, $or:[{status:"ignored"},{status:"accept"},{status:"reject"}]}
+            // ]
             $or: [
-                {fromUserId:loginUser._id},
-                {toUserId:loginUser._id, $or:[{status:"ignored"},{status:"accept"},{status:"reject"}]}
+                {fromUserId:loginUser._id},{toUserId:loginUser._id}
             ]
         }).select("toUserId fromUserId")
         // .populate("fromUserId","firstName")
