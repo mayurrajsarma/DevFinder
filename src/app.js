@@ -2,12 +2,12 @@ const express = require('express') ;
 const connectDB = require("./config/database");
 const User = require("./models/user");
 const cookieParser = require("cookie-parser") ;
-require("dotenv").config();
 const authRouter = require("./routes/authRouter");
 const profileRouter = require("./routes/profileRouter");
 const requestRouter = require("./routes/requestRouter") ;
 const userRouter = require('./routes/userRouter');
 const cors = require("cors") ;
+require("dotenv").config();
 
 const app = express();
 
